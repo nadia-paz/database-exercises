@@ -25,6 +25,7 @@ DESCRIBE employees; #int, date, varchar, enum
 
 SHOW CREATE TABLE dept_manager; 
 
+/*
 CREATE TABLE dept_manager (
 	emp_no int NOT NULL,
 	dept_no char(4) NOT NULL,
@@ -36,4 +37,4 @@ CREATE TABLE dept_manager (
     CONSTRAINT dept_manager_ibfk_2 FOREIGN KEY (dept_no) REFERENCES departments (dept_no) ON DELETE CASCADE ON UPDATE RESTRICT)
     ENGINE=InnoDB DEFAULT CHARSET=latin1
 ;
-
+*/
