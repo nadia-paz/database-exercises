@@ -30,6 +30,9 @@ SELECT *
 FROM albums
 WHERE release_date < 1970 OR release_date > 2010;
 
+SELECT * FROM albums WHERE release_date = (SELECT MIN(release_date) FROM albums)
+OR release_date = (SELECT MAX(release_date) FROM albums);
+
 # 4. Write queries to find the following information:
 # a. The name of all albums by Pink Floyd
 
@@ -52,10 +55,20 @@ SELECT name
 FROM albums
 WHERE release_date = 1990;
 
+#updated to correct solution
+SELECT name
+FROM albums 
+WHERE release_date BETWEEN 1990 AND 1999;
+
 # e. Which albums had less than 20 million certified sales
 SELECT name 
 FROM albums 
 WHERE sales < 20.0;
+
+#updated 
+SELECT name, sales
+FROM albums
+WHERE sales < 20;
 
 # f. All the albums with a genre of "Rock". 
 # Why do these query results not include albums with a genre of "Hard rock" or "Progressive rock"?
