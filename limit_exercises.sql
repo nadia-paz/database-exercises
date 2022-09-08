@@ -27,3 +27,5 @@ LIMIT 5;
 -- 'Sashi', 'Demeyer'
 -- 'Tomofumi', 'Rattan'
 
+-- What is the relationship between OFFSET (number of results to skip), LIMIT (number of results per page), and the page number?
+PAGE = OFFSET / LIMIT + 1
