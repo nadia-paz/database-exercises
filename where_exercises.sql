@@ -34,6 +34,15 @@ WHERE (first_name = 'Irena' AND gender = 'M')
 
 # 441 rows
 
+# update 
+
+SELECT first_name, last_name, gender
+FROM employees
+WHERE gender = 'M' AND 
+	(first_name = 'Irena'
+	OR first_name = 'Vidya' 
+	OR first_name = 'Maya');
+
 # 5. Find all current or previous employees whose last name starts with 'E'. Enter a comment with the number of employees whose last name starts with E.
 
 SELECT first_name, last_name
@@ -42,7 +51,8 @@ WHERE last_name LIKE 'E%';
 # 7330 rows
 
 # 6. Find all current or previous employees whose last name starts or ends with 'E'.
-# Enter a comment with the number of employees whose last name starts or ends with E. How many employees have a last name that ends with E, but does not start with E?
+# Enter a comment with the number of employees whose last name starts or ends with E.
+# How many employees have a last name that ends with E, but does not start with E?
 
 SELECT first_name, last_name
 FROM employees
@@ -50,6 +60,14 @@ WHERE last_name LIKE 'E%'
 	OR last_name LIKE '%e';
 
 # 30723 rows
+
+#update
+# #How many employees have a last name that ends with E, but does not start with E?
+SELECT first_name, last_name
+FROM employees
+WHERE last_name NOT LIKE 'E%' 
+	AND last_name LIKE '%e';
+#23393
 
 # 7. Find all current or previous employees employees whose last name starts and ends with 'E'.
 # Enter a comment with the number of employees whose last name starts and ends with E. How many employeeS last names end with E, regardless of whether they start with E?
@@ -61,6 +79,11 @@ WHERE last_name LIKE 'E%'
 
 # 899 rows
 
+#update
+SELECT first_name, last_name
+FROM employees
+WHERE last_name LIKE 'E%e';
+
 # 8. Find all current or previous employees hired in the 90s. Enter a comment with the number of employees returned.
 
 SELECT first_name, last_name, hire_date
@@ -68,6 +91,10 @@ FROM employees
 WHERE hire_date BETWEEN '1990-01-01' AND '1999-12-31';
 
 # 135214 rows
+
+#update SELECT first_name, last_name
+FROM employees
+WHERE hire_date LIKE '199%';
 
 # 9. Find all current or previous employees born on Christmas. Enter a comment with the number of employees returned.
 
