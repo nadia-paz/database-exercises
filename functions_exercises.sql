@@ -33,6 +33,12 @@ FROM salaries
 WHERE salary = (SELECT MIN(salary) FROM salaries) -- 38623
 	OR salary = (SELECT MAX(salary) FROM salaries); -- 158220
 
+-- correct solution
+SELECT MIN(salary) as 'Min', MAX(salary) as 'Max'
+FROM salaries
+WHERE to_date > CURDATE();
+--to_date = '9999-01-01'
+
 #6
 -- Use your knowledge of built in SQL functions to generate a username for all of the employees. 
 --A username should be all lowercase, and consist of the first character of the employees first name, 
