@@ -91,24 +91,72 @@ GROUP BY uname
 HAVING number_of_unames > 1;
 -- 13251 duplicate usernames
 
+SELECT COUNT(*) FROM (SELECT LOWER(
+		CONCAT(
+			SUBSTR(first_name, 1, 1), 
+			SUBSTR(last_name, 1, 4), '_',
+			DATE_FORMAT(birth_date, '%m'),
+			DATE_FORMAT(birth_date, '%y')
+		)
+	) AS uname, COUNT(*) as number_of_unames
+FROM employees
+GROUP BY uname
+HAVING number_of_unames > 1) AS RESULT;
+
 #9
 -- Bonus: More practice with aggregate functions:
 
 -- Determine the historic average salary for each employee. 
 -- When you hear, read, or think "for each" with regard to SQL, you'll probably be grouping by that exact column.
 
+SELECT emp_no, AVG(salary) AS average_salary
+FROM salaries
+GROUP BY emp_no
+LIMIT 20;
+
 
 -- Using the dept_emp table, count how many current employees work in each department. 
 -- The query result should show 9 rows, one for each department and the employee count.
 
+SELECT dept_no, COUNT(*) AS number_of_empl
+FROM dept_emp
+WHERE to_date > CURDATE()
+GROUP BY dept_no;
+
 -- Determine how many different salaries each employee has had. This includes both historic and current.
+
+SELECT emp_no, COUNT(*) as num_of_salaries
+FROM salaries
+GROUP BY emp_no;
 
 -- Find the maximum salary for each employee.
 
+SELECT emp_no, MAX(salary)
+FROM salaries
+GROUP BY emp_no;
+
 -- Find the minimum salary for each employee.
+
+SELECT emp_no, MIN(salary)
+FROM salaries
+GROUP BY emp_no;
 
 -- Find the standard deviation of salaries for each employee.
 
+SELECT emp_no, STD(salary)
+FROM salaries
+GROUP BY emp_no;
+
 --Now find the max salary for each employee where that max salary is greater than $150,000.
 
+SELECT emp_no, MAX(salary) as max_salary
+FROM salaries
+GROUP BY emp_no
+HAVING max_salary > 150000;
+
 -- Find the average salary for each employee where that average salary is between $80k and $90k.
+
+SELECT emp_no, AVG(salary) as avg_salary
+FROM salaries
+GROUP BY emp_no
+HAVING avg_salary >= 80000 and avg_salary <= 90000;
