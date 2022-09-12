@@ -311,7 +311,7 @@ Employee Name | Department Name  |  Manager Name
 
 #12
 USE employees;
-SELECT DISTINCT m.dname, m.max_salary, em.first_name, em.last_name
+SELECT m.dname, m.max_salary, em.first_name, em.last_name
 -- subquery 'm' with max salaries for each department
 FROM (SELECT d.dept_name AS dname,
 		d.dept_no AS dno,
@@ -326,6 +326,6 @@ GROUP BY d.dept_name) AS m
 LEFT JOIN salaries s ON m.max_salary = s.salary
 LEFT JOIN employees em ON s.emp_no = em.emp_no
 LEFT JOIN dept_emp de1 ON  em.emp_no = de1.emp_no AND de1.dept_no = m.dno
-LEFT JOIN departments dep ON de1.dept_no = dep.dept_no
+
 WHERE de1.to_date > CURDATE() AND s.to_date > CURDATE();
 
