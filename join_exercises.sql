@@ -56,6 +56,13 @@ JOIN dept_manager AS dm ON d.dept_no = dm.dept_no
 JOIN employees AS e ON dm.emp_no = e.emp_no
 WHERE dm.to_date > CURDATE();
 
+-- class solution
+SELECT *
+FROM employees e
+JOIN dept_manager dm ON e.emp_no = dm.emp_no 
+        AND dm.to_date > CURDATE()
+JOIN departments d USING(dept_no);
+
 /*
  Department Name    | Department Manager
  --------------------+--------------------
@@ -80,6 +87,13 @@ JOIN dept_manager AS dm ON d.dept_no = dm.dept_no
 JOIN employees AS e ON dm.emp_no = e.emp_no
 WHERE dm.to_date > CURDATE() AND e.gender = 'F';
 
+-- class solution
+SELECT *
+FROM employees e
+JOIN dept_manager dm ON e.emp_no = dm.emp_no 
+        AND dm.to_date > CURDATE()
+        AND e.gender = 'F'
+JOIN departments d USING(dept_no);
 
 /*
 Department Name | Manager Name
@@ -101,6 +115,14 @@ WHERE de.dept_no LIKE 'd009' AND t.to_date > CURDATE()
 GROUP BY t.title;
 
 -- not all numbers are the same as in the table
+-- correct solution
+SELECT t.title AS 'Title', COUNT(de.emp_no) AS 'Count'
+FROM dept_emp de
+JOIN titles t ON de.emp_no = t.emp_no 
+			  AND de.to_date > CURDATE()
+              AND t.to_date > CURDATE()
+JOIN departments d ON de.dept_no = d.dept_no AND d.dept_name LIKE 'Customer%'
+GROUP BY t.title;
 
 /*
 Title              | Count
@@ -126,6 +148,18 @@ JOIN employees AS e ON dm.emp_no = e.emp_no
 JOIN salaries AS s ON s.emp_no = e.emp_no
 WHERE dm.to_date > CURDATE() AND s.to_date > CURDATE();
 
+-- class solution
+SELECT d.dept_name as 'Department Name', 
+	   CONCAT(e.first_name, ' ', e.last_name) AS 'Name',
+	   s.salary AS 'Salary'
+FROM employees e
+JOIN salaries s ON e.emp_no = s.emp_no
+	AND s.to_date > CURDATE()
+JOIN dept_manager dm ON e.emp_no = dm.emp_no
+	AND dm.to_date > CURDATE()
+JOIN departments d ON dm.dept_no = d.dept_no
+ORDER BY d.dept_name;
+
 /*
 Department Name    | Name              | Salary
 -------------------+-------------------+-------
@@ -150,6 +184,14 @@ FROM departments AS d
 JOIN dept_emp AS de ON d.dept_no = de.dept_no
 WHERE de.to_date > CURDATE()
 GROUP BY d.dept_no
+ORDER BY d.dept_no;
+
+-- class solution
+SELECT d.dept_no, d.dept_name, COUNT(emp_no)
+FROM dept_emp de
+JOIN departments d ON de.dept_no = d.dept_no
+	 AND  de.to_date > CURDATE()
+GROUP BY d.dept_no, d.dept_name
 ORDER BY d.dept_no;
 
 /*
@@ -191,6 +233,15 @@ GROUP BY d.dept_no
 ORDER BY average_salary DESC
 LIMIT 1; -- 1.7 seconds
 
+-- class solution
+SELECT d.dept_name, AVG(s.salary) average_salary
+FROM dept_emp de
+JOIN salaries s ON de.emp_no = s.emp_no AND de.to_date > CURDATE() AND s.to_date > CURDATE()
+JOIN departments d USING (dept_no)
+GROUP BY d.dept_name
+ORDER BY average_salary  DESC
+LIMIT 1; 
+
 /*
 +-----------+----------------+
 | dept_name | average_salary |
@@ -221,6 +272,18 @@ WHERE de.dept_no = 'd001'
 ORDER BY s.salary DESC
 LIMIT 1;
 
+-- class solution
+SELECT e.first_name, e.last_name
+FROM employees e
+JOIN dept_emp de ON e.emp_no = de.emp_no
+	AND de.to_date > CURDATE()
+JOIN salaries s ON e.emp_no = s.emp_no
+	AND s.to_date > CURDATE()
+JOIN departments d ON de.dept_no = d.dept_no
+	AND d.dept_name = 'Marketing'
+ORDER BY s.salary DESC
+LIMIT 1;
+
 /*
 +------------+-----------+
 | first_name | last_name |
@@ -244,6 +307,17 @@ WHERE dm.to_date > CURDATE() AND s.to_date > CURDATE()
 ORDER BY s.salary DESC
 LIMIT 1;
 
+-- class solution 
+SELECT e.first_name, e.last_name, s.salary, d.dept_name
+FROM employees e
+JOIN dept_manager dm ON e.emp_no = dm.emp_no
+	AND dm.to_date > CURDATE()
+JOIN salaries s ON e.emp_no = s.emp_no 
+	AND s.to_date > CURDATE()
+JOIN departments d ON dm.dept_no = d.dept_no
+ORDER BY s.salary DESC
+LIMIT 1;
+
 /*
 +------------+-----------+--------+-----------+
 | first_name | last_name | salary | dept_name |
@@ -261,6 +335,14 @@ FROM departments AS d
 JOIN dept_emp AS de ON d.dept_no = de.dept_no
 JOIN salaries AS s ON de.emp_no = s.emp_no
 GROUP BY d.dept_no
+ORDER BY average_salary DESC;
+
+-- class solution
+SELECT d.dept_name, ROUND(AVG(s.salary), 0) average_salary
+FROM departments d
+JOIN dept_emp de ON d.dept_no = de.dept_no
+JOIN salaries s ON de.emp_no = s.emp_no
+GROUP BY d.dept_name
 ORDER BY average_salary DESC;
 
 /*
