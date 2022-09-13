@@ -187,6 +187,29 @@ FROM (
 			END total_salaries
             ) result;
 
+-- query edited by Mark
+SELECT result.one_std_away 'One STD away', 
+		result.total_salaries 'Total number', 
+        (result.one_std_away / result.total_salaries * 100) as 'Percentage'
+FROM (
+	SELECT
+    -- count how many salaries currently are 1 std away from MAX(salary)
+	
+		(SELECT COUNT(*) 
+				FROM (
+					SELECT * 
+					FROM salaries
+					WHERE to_date > CURDATE() 
+						AND 
+					salary >= ((SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE()) 
+					- (SELECT ROUND(STD(salary)) FROM salaries WHERE to_date > CURDATE()))
+				) as r)
+             as one_std_away,
+    -- count the total number of current salaries         
+	
+		(SELECT COUNT(*) FROM salaries WHERE to_date > CURDATE()) 
+			as total_salaries
+            ) result;
 
 -- BONUS
 #1
