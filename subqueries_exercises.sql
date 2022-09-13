@@ -163,6 +163,29 @@ SELECT (
  / (SELECT COUNT(*) FROM salaries WHERE to_date > CURDATE()) * 100;
  -- 0.0346
 
+-- all answers in one row
+SELECT result.one_std_away 'One STD away', 
+		result.total_salaries 'Total number', 
+        (result.one_std_away / result.total_salaries * 100) as 'Percentage'
+FROM (
+	SELECT
+    -- count how many salaries currently are 1 std away from MAX(salary)
+	CASE WHEN true THEN
+		(SELECT COUNT(*) 
+				FROM (
+					SELECT * 
+					FROM salaries
+					WHERE to_date > CURDATE() 
+						AND 
+					salary >= ((SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE()) 
+					- (SELECT ROUND(STD(salary)) FROM salaries WHERE to_date > CURDATE()))
+				) as r)
+             END one_std_away,
+    -- count the total number of current salaries         
+	CASE WHEN TRUE THEN 
+		(SELECT COUNT(*) FROM salaries WHERE to_date > CURDATE()) 
+			END total_salaries
+            ) result;
 
 
 -- BONUS
@@ -195,12 +218,12 @@ WHERE emp_no = (
 SELECT dept_name
 FROM departments
 WHERE dept_no = (
-SELECT dept_no
-FROM dept_emp
-WHERE emp_no = (
-				SELECT emp_no
-				FROM salaries
-				WHERE salary = (SELECT MAX(salary) FROM salaries)
-		)
+    SELECT dept_no
+    FROM dept_emp
+    WHERE emp_no = (
+                    SELECT emp_no
+                    FROM salaries
+                    WHERE salary = (SELECT MAX(salary) FROM salaries)
+            )
 );
 -- Sales
