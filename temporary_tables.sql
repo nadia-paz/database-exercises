@@ -8,8 +8,8 @@ SELECT first_name, last_name, dept_name
 FROM employees.employees e
 JOIN employees.dept_emp de USING(emp_no)
 JOIN employees.departments d USING(dept_no)
+WHERE to_date > CURDATE()
 );
---331603 row(s) in the table
 
 #2
 -- Add a column named full_name to this table. It should be a VARCHAR whose length is the sum of the lengths of the first name and last name columns
@@ -39,6 +39,9 @@ FROM sakila.payment);
 -- an integer representing the number of cents of the payment. For example, 1.99 should become 199.
 ALTER TABLE sakila_pay ADD amount_cents INT;
 UPDATE sakila_pay SET amount_cents = amount *100;
+
+-- alternative change the column type
+ALTER TABLE sakila_pay MODIFY amount_in_cents INT NOT NULL;
 
 
 #4
@@ -78,6 +81,44 @@ SELECT dept_name,
 FROM salaries_compare
 GROUP BY dept_name
 ORDER BY zscore DESC;
+
+-- class solution
+use mirzakhani_1945;
+
+CREATE TEMPORARY TABLE overall_aggregates AS (
+SELECT AVG(SALARY) AS avg_salary,
+	STD(salary) AS std_salary
+    FROM employees.salaries
+    WHERE to_date > NOW()
+);
+
+SELECT dept_name, AVG(salary) as DEP_AVG_SALARY
+FROM employees.salaries
+JOIN employees.dept_emp USING (emp_no)
+JOIN employees.departments USING(dept_no)
+WHERE employees.dept_emp.to_date > NOW()
+AND  employees.salaries.to_date > NOW()
+group by dept_name;
+
+CREATE TEMPORARY TABLE info AS (
+SELECT dept_name, AVG(salary) as DEP_AVG_SALARY
+FROM employees.salaries
+JOIN employees.dept_emp USING (emp_no)
+JOIN employees.departments USING(dept_no)
+WHERE employees.dept_emp.to_date > NOW()
+AND  employees.salaries.to_date > NOW()
+group by dept_name
+);
+
+ALTER TABLE info ADD overall_av FLOAT(10, 2);
+ALTER TABLE info ADD overall_STD FLOAT(10, 2);
+ALTER TABLE info ADD zscore FLOAT(10, 2);
+
+select * from info;
+UPDATE info SET overall_av = (SELECT avg_salary FROM overall_aggregates);
+UPDATE info SET overall_STD = (SELECT std_salary FROM overall_aggregates);
+UPDATE info SET zscore = (DEP_AVG_SALARY - overall_av) / overall_STD;
+
 
 --Hint Consider that the following code will produce the z score for current salaries.
 -- Returns the historic z-scores for each salary
