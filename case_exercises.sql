@@ -48,3 +48,17 @@ FROM departments
 JOIN dept_emp de ON dc.dept_no = de.dept_no AND de.to_date > NOW()
 JOIN salaries s ON de.emp_no = s.emp_no AND s.to_date > NOW()
 GROUP BY dc.department_categories;
+
+-- easier way to solve it
+SELECT
+        CASE
+			WHEN dept_name IN ('Marketing', 'Sales') THEN 'Sales & Marketing'
+			WHEN dept_name IN ('Research', 'Development') THEN 'R&D'
+			WHEN dept_name LIKE 'prod%' OR dept_name LIKE 'quality%' THEN 'Prod & QM'
+			WHEN dept_name LIKE 'Finance%' OR dept_name LIKE 'Human%' THEN'Finance & HR'
+			ELSE 'Customer Service'
+		END AS dept_categories, AVG(s.salary)
+FROM departments d
+JOIN dept_emp de ON d.dept_no = de.dept_no AND de.to_date > NOW()
+JOIN salaries s ON de.emp_no = s.emp_no AND s.to_date > NOW()
+GROUP BY dept_categories;
