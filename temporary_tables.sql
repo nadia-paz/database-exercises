@@ -128,6 +128,107 @@ SELECT salary,
     /
     (SELECT stddev(salary) FROM salaries) AS zscore
 FROM salaries;
+
+###############################
 -- BONUS To your work with current salary zscores, determine the overall historic average 
 -- departement average salary, the historic overall average, and the historic zscores for salary.
 -- Do the zscores for current department average salaries tell a similar or a different story than the historic department salary zscores?
+
+-- select aggregate values
+SELECT aggr_values.mean_std, aggr_values.hist_std, aggr_values.curr_mean,  aggr_values.curr_std
+FROM
+(
+SELECT 
+(SELECT AVG(salary) FROM employees.salaries) AS mean_std,
+(SELECT STD(salary) FROM employees.salaries) AS hist_std,
+(SELECT AVG(salary) FROM employees.salaries WHERE to_date > NOW()) AS curr_mean,
+(SELECT STD(salary) FROM employees.salaries WHERE to_date > NOW()) AS curr_std
+) AS aggr_values;
+
+-- put these values into a temporal table
+CREATE TEMPORARY TABLE mean_std_values AS (
+SELECT aggr_values.mean_std, aggr_values.hist_std, aggr_values.curr_mean,  aggr_values.curr_std
+FROM
+(
+SELECT 
+(SELECT AVG(salary) FROM employees.salaries) AS hist_mean,
+(SELECT STD(salary) FROM employees.salaries) AS hist_std,
+(SELECT AVG(salary) FROM employees.salaries WHERE to_date > NOW()) AS curr_mean,
+(SELECT STD(salary) FROM employees.salaries WHERE to_date > NOW()) AS curr_std
+) AS aggr_values
+);
+
+-- select historical values per department
+SELECT d.dept_no, d.dept_name, ROUND(AVG(s.salary), 2) hist_mean_dept, ROUND(STD(s.salary), 2) hist_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+GROUP BY d.dept_no;
+
+-- select current values per department
+SELECT d.dept_no, d.dept_name, ROUND(AVG(s.salary), 2) curr_mean_dept, ROUND(STD(s.salary), 2) curr_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+WHERE de.to_date > NOW() AND s.to_date > NOW()
+GROUP BY d.dept_no;
+
+-- join 2 selections as they are tables
+SELECT *
+FROM
+(SELECT d.dept_no, d.dept_name, ROUND(AVG(s.salary), 2) hist_mean_dept, ROUND(STD(s.salary), 2) hist_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+GROUP BY d.dept_no) AS hist_by_dept
+JOIN 
+(SELECT d.dept_no, ROUND(AVG(s.salary), 2) curr_mean_dept, ROUND(STD(s.salary), 2) curr_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+WHERE de.to_date > NOW() AND s.to_date > NOW()
+GROUP BY d.dept_no) AS curr_by_dept USING (dept_no);
+
+-- put it into a temporary table
+CREATE TEMPORARY TABLE values_by_dept AS (
+SELECT *
+FROM
+(SELECT d.dept_no, d.dept_name, ROUND(AVG(s.salary), 2) hist_mean_dept, ROUND(STD(s.salary), 2) hist_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+GROUP BY d.dept_no) AS hist_by_dept
+JOIN 
+(SELECT d.dept_no, ROUND(AVG(s.salary), 2) curr_mean_dept, ROUND(STD(s.salary), 2) curr_std_dept
+FROM employees.departments d
+JOIN employees.dept_emp de USING(dept_no)
+JOIN employees.salaries s USING(emp_no)
+WHERE de.to_date > NOW() AND s.to_date > NOW()
+GROUP BY d.dept_no) AS curr_by_dept USING (dept_no)
+);
+
+-- create columns for aggregate values
+ALTER TABLE values_by_dept ADD hist_mean FLOAT(10, 2);
+ALTER TABLE values_by_dept ADD hist_std FLOAT(10, 2);
+ALTER TABLE values_by_dept ADD curr_mean FLOAT(10, 2);
+ALTER TABLE values_by_dept ADD curr_std FLOAT(10, 2);
+
+-- insert aggregate values into values_by_dept table
+UPDATE values_by_dept SET hist_mean = (SELECT hist_mean FROM mean_std_values);
+UPDATE values_by_dept SET hist_std = (SELECT hist_std FROM mean_std_values);
+UPDATE values_by_dept SET curr_mean = (SELECT curr_mean FROM mean_std_values);
+UPDATE values_by_dept SET curr_std = (SELECT curr_std FROM mean_std_values);
+
+-- create columns for zscores
+ALTER TABLE values_by_dept ADD hist_zscore FLOAT(10, 2);
+ALTER TABLE values_by_dept ADD curr_zscore FLOAT(10, 2);
+
+-- put zscore values into new columns
+-- Department mean - company mean devided by standard deviation;
+UPDATE values_by_dept SET hist_zscore = ((hist_mean_dept - hist_mean) / hist_std);
+UPDATE values_by_dept SET curr_zscore = ((curr_mean_dept - curr_mean) / curr_std);
+
+-- select values to compare
+SELECT dept_name, hist_zscore, curr_zscore
+FROM values_by_dept
+ORDER BY hist_zscore DESC;
