@@ -12,9 +12,9 @@ WHERE e.hire_date = (SELECT hire_date FROM employees WHERE emp_no = '101010')
 SELECT *
 FROM employees
 WHERE emp_no IN (
-SELECT emp_no
-FROM dept_emp de
-WHERE emp_no IN (
+    SELECT emp_no
+    FROM dept_emp de
+    WHERE emp_no IN (
 					SELECT emp_no
 					FROM employees 
 					WHERE hire_date = (SELECT hire_date
@@ -52,7 +52,7 @@ FROM (SELECT de.emp_no -- , e.first_name, e.last_name, de.to_date
 	FROM employees e
 	JOIN dept_emp as de ON de.emp_no = e.emp_no
 	WHERE de.to_date < CURDATE()
-    GROUP BY de.emp_no) AS result
+    GROUP BY de.emp_no) AS result;
 
 -- without JOINs
 SELECT COUNT(*)
@@ -66,6 +66,17 @@ FROM (
 						)
 		) result;
 -- 85108
+
+-- This is the correct solution removes duplicates emp_no
+-- the ones that switched to the different department
+SELECT COUNT(*)
+FROM employees
+WHERE emp_no NOT IN (
+				SELECT emp_no
+				FROM dept_emp
+				WHERE to_date LIKE '9999%'
+				); -- 59900
+
 
 #4
 -- Find all the current department managers that are female. 
@@ -98,7 +109,7 @@ FROM employees e
 JOIN salaries s ON e.emp_no = s.emp_no
 WHERE s.to_date > CURDATE()
 		AND s.salary > 
-        (SELECT AVG(salary) FROM salaries)
+        (SELECT AVG(salary) FROM salaries);
 
 -- WITHOU JOINS
 SELECT *
@@ -114,7 +125,15 @@ WHERE emp_no IN (
 									)
 					AND to_date > CURDATE()
 				);
---154543 rows
+-- 154543 rows
+
+-- class solution
+SELECT *
+FROM salaries
+JOIN employees USING(emp_no)
+WHERE to_date > CURDATE()
+	AND salary > (SELECT AVG(salary) FROM salaries);
+
 
 #6
 -- How many current salaries are within 1 standard deviation of the current highest salary? 
@@ -129,14 +148,14 @@ SELECT * FROM salaries
     WHERE to_date > CURDATE() AND 
     salary >= ((SELECT MAX(salary) FROM salaries) - (SELECT ROUND(STD(salary)) FROM salaries))
     AND 
-    salary <= (SELECT MAX(salary) FROM salaries)  
+    salary <= (SELECT MAX(salary) FROM salaries); 
 -- 78 rows 
 
 SELECT * 
 FROM salaries
 WHERE to_date > CURDATE() 
 	AND 
-    salary >= ((SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE()) - (SELECT ROUND(STD(salary)) FROM salaries WHERE to_date > CURDATE()))
+    salary >= ((SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE()) - (SELECT ROUND(STD(salary)) FROM salaries WHERE to_date > CURDATE()));
    -- AND 
     -- salary <= (SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE())
 -- 83 rows
@@ -149,7 +168,7 @@ FROM (
 	    AND 
     salary >= ((SELECT MAX(salary) FROM salaries WHERE to_date > CURDATE()) 
     - (SELECT ROUND(STD(salary)) FROM salaries WHERE to_date > CURDATE()))
-) as result
+) as result;
 -- 83 
 SELECT (
 	SELECT
@@ -237,7 +256,7 @@ WHERE emp_no = (
 );
 -- Tokuyasu Pesch
 #3
---Find the department name that the employee with the highest salary works in.
+-- Find the department name that the employee with the highest salary works in.
 SELECT dept_name
 FROM departments
 WHERE dept_no = (
