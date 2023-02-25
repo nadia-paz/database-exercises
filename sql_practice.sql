@@ -54,3 +54,59 @@ SELECT *
 FROM users
 WHERE attribute LIKE CONCAT('_%\%', binary first_name, '_', binary second_name, '\%%')
 ORDER BY attribute;
+
+/* IF statement in SELECT, almost as np.where */
+SELECT id, 
+    IF (ISNULL(given_answer), 'no answer', 
+    IF (given_answer = correct_answer, 'correct', 'incorrect') ) AS checks
+FROM answers
+ORDER BY id;
+
+/* CASE WHEN in WHERE clause */
+SELECT id, a, b, operation, c
+FROM expressions
+WHERE c = (
+        CASE operation
+            WHEN '+' THEN a + b
+            WHEN '-' THEN a - b
+            WHEN '*' THEN a * b
+            WHEN '/' THEN a / nullif(b, 0)
+        END) 
+ORDER BY id;
+
+/* UNION returns DISTINCT values */
+SELECT subscriber FROM full_year WHERE newspaper LIKE '%Daily%' 
+UNION
+SELECT subscriber FROM HALF_year WHERE newspaper LIKE '%Daily%'
+ORDER BY subscriber;
+
+/* save unique countries from the column into the list, separate with ';' */
+SELECT GROUP_CONCAT(DISTINCT country ORDER BY country SEPARATOR ';') AS coutries
+FROM diary;
+
+/* GROUP concatanation */
+SELECT GROUP_CONCAT(first_name, ' ', surname, ' #', player_number
+            ORDER BY player_number
+            SEPARATOR '; ') as players
+FROM soccer_team;
+
+/* Without LIMIT the sorting doesn't work */
+(SELECT country, COUNT(*) AS competitors
+FROM foreignCompetitors
+GROUP BY country
+ORDER BY country ASC
+LIMIT 1000000)
+UNION 
+SELECT 'Total:', count(*)  FROM foreignCompetitors;
+
+/* count legs */
+SELECT SUM(CASE type WHEN  'human' THEN 2 ELSE 4 END) as summary_legs
+FROM creatures
+ORDER BY id;
+/*
+count all possible combinations
+calculate the lenght of the word and multiply the length of all words in the column
+use the rule log(x) + log(y) = log(xy) to multiply
+ */
+SELECT round(exp(sum(log(length(characters)))),0) as combinations
+from discs;
