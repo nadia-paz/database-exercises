@@ -42,3 +42,19 @@ FROM (SELECT company_id, title, description, COUNT(*) as count_jobs
 FROM job_listings
 GROUP BY company_id, title, description) temp
 WHERE count_jobs = 2;
+
+/* difference in days */
+SELECT user_id, Max(post_date::Date)-MIN(post_date::Date) as days_between
+FROM posts
+WHERE DATE_PART('YEAR', post_date) = '2021'
+GROUP BY user_id
+HAVING COUNT(post_id) > 1;
+
+/* who sent more messages in August 2022*/
+SELECT sender_id, COUNT(content) AS message_count
+FROM messages
+WHERE DATE_PART('MONTH', sent_date) = '08' AND
+      DATE_PART('YEAR', sent_date) = '2022'
+GROUP BY sender_id
+ORDER BY message_count DESC
+LIMIT 2;
