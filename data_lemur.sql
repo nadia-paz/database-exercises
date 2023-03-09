@@ -102,4 +102,14 @@ FROM emails e
 JOIN texts t ON e.email_id = t.email_id AND t.signup_action = 'Confirmed'
 WHERE DATE_PART('DAYS', t.action_date - e.signup_date) = 1;
 
+SELECT card_name, MAX(issued_amount) - MIN(issued_amount) as difference
+FROM monthly_cards_issued
+GROUP BY card_name
+ORDER BY difference DESC;
 
+SELECT 
+  ROUND(
+  SUM(CAST(item_count as decimal) * order_occurrences) / 
+  SUM(order_occurrences), 
+  1)
+FROM items_per_order;
