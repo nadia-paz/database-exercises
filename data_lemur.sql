@@ -58,3 +58,48 @@ WHERE DATE_PART('MONTH', sent_date) = '08' AND
 GROUP BY sender_id
 ORDER BY message_count DESC
 LIMIT 2;
+
+/* ist the top three cities that have the most completed trade orders in descending order.*/
+SELECT u.city, COUNT(t.order_id) AS total_orders
+FROM users u
+JOIN trades t ON u.user_id = t.user_id AND t.status = 'Completed'
+GROUP BY u.city
+ORDER BY total_orders DESC
+LIMIT 3;
+
+/* get the average stars for each product every month.*/
+SELECT DATE_PART('MONTH', submit_date) as mth, 
+  product_id as product,
+  ROUND(AVG(stars), 2) as avg_stars
+FROM reviews
+GROUP BY mth, product
+ORDER BY mth, product;
+
+/* Write a query to get the app’s click-through rate (CTR %) in 2022 */
+/* Percentage of click-through rate = 100.0 * Number of clicks / Number of impressions */
+SELECT app_id, ROUND(
+  COUNT(CASE event_type WHEN 'click' THEN 1 END) * 100.0 /
+  COUNT(CASE event_type WHEN 'impression' THEN 1 END),
+  2) AS ctr
+FROM events
+WHERE DATE_PART('YEAR', timestamp) = 2022
+GROUP BY app_id;
+
+/* solution on the site */
+SELECT
+  app_id,
+  ROUND(100.0 *
+    SUM(1) FILTER (WHERE event_type = 'click') /
+    SUM(1) FILTER (WHERE event_type = 'impression'), 2) AS ctr_app
+FROM events
+WHERE timestamp >= '2022-01-01' 
+  AND timestamp < '2023-01-01'
+GROUP BY app_id;
+
+/* display the ids of the users who did not confirm on the first day of sign-up, but confirmed on the second day.*/
+SELECT user_id
+FROM emails e
+JOIN texts t ON e.email_id = t.email_id AND t.signup_action = 'Confirmed'
+WHERE DATE_PART('DAYS', t.action_date - e.signup_date) = 1;
+
+
