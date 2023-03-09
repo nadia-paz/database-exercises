@@ -119,3 +119,9 @@ SELECT id, email_title,
         END AS short_size
 FROM emails
 ORDER BY size DESC;
+
+/* find candidate_id's that are not in detention id's */
+SELECT c.candidate_id
+FROM candidates c
+LEFT JOIN detentions d ON c.candidate_id = d.student_id
+WHERE d.student_id IS NULL;`
