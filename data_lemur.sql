@@ -114,7 +114,45 @@ SELECT
   1)
 FROM items_per_order;
 
+/* pharmacy analytics */
 SELECT drug, total_sales -  cogs as total_profit
 FROM pharmacy_sales
 ORDER BY total_profit DESC
 LIMIT 3;
+
+SELECT manufacturer, count(drug) as drug_count, ABS(SUM(total_sales - cogs)) as total_loss
+FROM pharmacy_sales
+WHERE total_sales - cogs <= 0
+GROUP BY manufacturer
+order by TOTAL_LOSS desc;
+
+SELECT manufacturer , 
+  CONCAT('$',round(round(sum(total_sales), -6) / 1000000, 0), ' million') as sales_mil
+FROM pharmacy_sales
+GROUP BY manufacturer
+ORDER BY SUM(total_sales) Desc;
+
+/* united health */
+SELECT COUNT(*) AS member_count
+FROM (
+SELECT  policy_holder_id, COUNT(case_id)
+FROM callers
+GROUP BY policy_holder_id
+HAVING COUNT(case_id) >= 3) a;
+
+/* solution from the site */
+WITH call_records AS (
+SELECT
+  policy_holder_id,
+  COUNT(case_id) AS call_count
+FROM callers
+GROUP BY policy_holder_id
+HAVING COUNT(case_id) >= 3
+)
+SELECT COUNT(policy_holder_id) AS member_count
+FROM call_records;
+
+SELECT ROUND(100 * SUM(CASE 
+    WHEN call_category IS NULL or call_category='' or LOWER(call_category) = 'n/a' THEN 1 else 0 END) /
+    COUNT(*), 1) as call_pecentage
+FROM callers;
