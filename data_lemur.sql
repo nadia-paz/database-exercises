@@ -113,3 +113,8 @@ SELECT
   SUM(order_occurrences), 
   1)
 FROM items_per_order;
+
+SELECT drug, total_sales -  cogs as total_profit
+FROM pharmacy_sales
+ORDER BY total_profit DESC
+LIMIT 3;
