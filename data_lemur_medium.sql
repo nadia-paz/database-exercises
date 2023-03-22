@@ -31,3 +31,26 @@ FROM (
   FROM tweets
   GROUP BY user_id, tweet_date
   ORDER BY user_id, tweet_date) a;
+
+/*
+Identify the top two highest-grossing products within each category in 2022. 
+Output the category, product, and total spend.
+*/
+WITH spend_table  AS /* first temporal table */
+  (
+  SELECT category, product, SUM(spend) as total_spend
+  FROM product_spend
+  WHERE DATE_PART('year', transaction_date) = '2022'
+  GROUP BY category, product
+  ) ,
+  ranking AS /* second temporal */
+  (
+  SELECT *, RANK() OVER(
+    PARTITION BY category
+    ORDER BY total_spend DESC) AS ranknum
+  FROM spend_table
+  )
+
+SELECT category, product, total_spend
+FROM ranking
+WHERE ranknum < 3;
