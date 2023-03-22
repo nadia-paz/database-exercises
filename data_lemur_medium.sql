@@ -21,3 +21,13 @@ FROM age_breakdown ab
 JOIN activities a USING(user_id) 
 GROUP BY age_bucket
 ) temp_t; 
+
+/* calculate the rolling average of tweets per user per 3 days */
+SELECT user_id, tweet_date, ROUND(AVG(tweets) OVER (
+  PARTITION BY user_id
+  ROWS BETWEEN 2 preceding and current row), 2) AS rolling_avg_3d
+FROM (
+  SELECT user_id, tweet_date, COUNT(user_id) AS tweets
+  FROM tweets
+  GROUP BY user_id, tweet_date
+  ORDER BY user_id, tweet_date) a;
