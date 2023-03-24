@@ -54,3 +54,13 @@ WITH spend_table  AS /* first temporal table */
 SELECT category, product, total_spend
 FROM ranking
 WHERE ranknum < 3;
+
+/* 
+
+*/
+
+SELECT artist_id, song_id, artist_name, rank
+FROM global_song_rank gsr
+JOIN songs USING(song_id)
+JOIN artists USING(artist_id)
+WHERE gsr.rank <= 10
