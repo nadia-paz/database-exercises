@@ -5,14 +5,16 @@
 -- first letter of their last name.
 
 
-SELECT first_name, last_name, CASE
-		WHEN SUBSTR(last_name, 1, 1) between 'A' and 'H'  THEN 'A-H'
-        WHEN SUBSTR(last_name, 1, 1) BETWEEN 'I' AND 'Q' THEN 'I-Q'
-		ELSE 'R-Z' END AS alpha_group
-        FROM employees;
+SELECT DISTINCT(last_name)
+FROM employees
+WHERE LOWER(last_name) LIKE '%q%' AND 
+		LOWER(last_name) NOT LIKE '%qu%';
+        
+-- Using the Employees database, find all the titles ever held 
+-- by all current employees with the first name Aamod.
 
-SELECT first_name, last_name, CASE
-		WHEN LEFT(last_name, 1) <= 'H' THEN 'A-H'
-        WHEN LEFT(last_name, 1) <= 'Q' THEN 'I-Q'
-        ELSE 'R-Z' END AS alpha_group
-FROM employees;
+SELECT DISTINCT(title)
+FROM titles t
+JOIN employees e USING(emp_no) 
+WHERE t.to_date > NOW()
+	AND e.first_name = 'Aamod'
