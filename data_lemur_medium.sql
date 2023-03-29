@@ -56,11 +56,30 @@ FROM ranking
 WHERE ranknum < 3;
 
 /* 
-
+determine the top 5 artists whose songs appear in the Top 10 
+of the global_song_rank table the highest number of times. 
+From now on, we'll refer to this ranking number as "song appearances".
+Output the top 5 artist names in ascending order along with their song appearances ranking
 */
 
-SELECT artist_id, song_id, artist_name, rank
+/* used DENSE_RANK() not to skip repeated numbers */
+
+WITH 
+
+song_apperance AS
+(SELECT  artist_name, COUNT(song_id) as appearance 
 FROM global_song_rank gsr
-JOIN songs USING(song_id)
-JOIN artists USING(artist_id)
+JOIN songs s USING(song_id)
+JOIN artists a USING(artist_id)
 WHERE gsr.rank <= 10
+GROUP BY artist_name),
+
+ranking AS
+(SELECT artist_name, DENSE_RANK() OVER (
+ORDER BY appearance DESC) AS artist_rank
+FROM song_apperance
+)
+
+SELECT *
+FROM ranking
+WHERE artist_rank <= 5;
