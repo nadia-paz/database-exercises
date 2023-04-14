@@ -83,3 +83,31 @@ FROM song_apperance
 SELECT *
 FROM ranking
 WHERE artist_rank <= 5;
+
+/* activation rate of specific users in the emails table, 
+which may not include all users that could potentially be found in the texts table.*/
+WITH 
+full_list AS
+(
+SELECT *
+FROM emails e
+LEFT JOIN texts t USING(email_id)
+WHERE t.email_id IS NOT NULL
+)
+SELECT ROUND(1.0 * SUM(
+CASE signup_action 
+WHEN 'Confirmed' THEN 1 ELSE 0 END
+) / COUNT (*), 2) AS confirm_rate
+FROM full_list;
+
+/* solution on the site
+Signup Activation Rate = Number of users who confirmed their accounts / 
+Number of users in the emails table
+*/
+SELECT 
+  ROUND(COUNT(texts.email_id)::DECIMAL
+    /COUNT(DISTINCT emails.email_id),2) AS activation_rate
+FROM emails
+LEFT JOIN texts
+  ON emails.email_id = texts.email_id
+  AND texts.signup_action = 'Confirmed';
