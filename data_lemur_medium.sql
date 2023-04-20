@@ -111,3 +111,34 @@ FROM emails
 LEFT JOIN texts
   ON emails.email_id = texts.email_id
   AND texts.signup_action = 'Confirmed';
+
+
+/*
+Supercloud customer is a company which buys at least 1 product from each product category.
+Write a query to report the company ID which is a Supercloud customer.
+*/
+WITH 
+groupped_cat AS
+(
+SELECT c.customer_id, count(DISTINCT(p.product_category)) as categories
+FROM customer_contracts c
+LEFT JOIN products p USING(product_id)
+GROUP BY c.customer_id
+)
+SELECT customer_id
+FROM groupped_cat
+WHERE categories = (SELECT COUNT(DISTINCT(product_category)) FROM products)
+;
+
+/* site solution */
+SELECT customer_id
+FROM (
+  SELECT customers.customer_id
+  FROM customer_contracts AS customers
+  LEFT JOIN products 
+    ON customers.product_id = products.product_id
+  GROUP BY customers.customer_id
+  HAVING COUNT(DISTINCT products.product_category) = 3
+) AS supercloud
+ORDER BY customer_id;
+
