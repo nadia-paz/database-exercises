@@ -15,6 +15,34 @@ The Laptop table is similar to the PC table, except that instead of the CD-ROM s
 it contains the screen size (in inches) – screen. 
 For each printer model in the Printer table, its output type (‘y’ for color and ‘n’ for monochrome)
  – color field, printing technology ('Laser', 'Jet', or 'Matrix') – type, and price are specified.
+
+ SHIPS:
+Classes(class -varchar50, type-varchar2, country-varchar20, numGuns-tinyint, bore-real, displacement-int)
+Ships(name-varchar50, class-varchar50, launched-smallint)
+Battles(name-varchar20, date-datetime)
+Outcomes(ship-vc50, battle-vc20, result-vc10)
+
+Ships in classes all have the same general design. 
+A class is normally assigned either the name of the first ship built according to 
+the corresponding design, or a name that is different from any ship name in the database. 
+The ship whose name is assigned to a class is called a lead ship.
+The Classes relation includes the name of the class, 
+type (can be either bb for a battle ship, or bc for a battle cruiser), 
+country the ship was built in, 
+the number of main guns, 
+gun caliber (bore diameter in inches), 
+and displacement (weight in tons). 
+The Ships relation holds information about the ship name, the name of its corresponding class, 
+and the year the ship was launched. T
+he Battles relation contains names and dates of battles the ships participated in, 
+and the Outcomes relation - the battle result for a given ship (may be sunk, damaged, or OK, 
+the last value meaning the ship survived the battle unharmed).
+Notes: 
+1) The Outcomes relation may contain ships not present in the Ships relation. 
+2) A ship sunk can’t participate in later battles. 
+3) For historical reasons, lead ships are referred to as head ships in many exercises.
+4) A ship found in the Outcomes table but not in the Ships table is still considered in the database. 
+This is true even if it is sunk.
 */
 
 /* 
@@ -53,3 +81,11 @@ SELECT AVG(speed)
 FROM PC
 JOIN Product p USING(model)
 WHERE p.maker = 'A';
+
+/*
+14. For the ships in the Ships table that have at least 10 guns, get the class, name, and country.
+*/
+SELECT sh.class, sh.name, cl.country
+FROM Ships sh
+JOIN Classes cl USING(class)
+WHERE cl.numGuns >= 10;
