@@ -89,3 +89,26 @@ SELECT sh.class, sh.name, cl.country
 FROM Ships sh
 JOIN Classes cl USING(class)
 WHERE cl.numGuns >= 10;
+
+/*
+15. Get hard drive capacities that are identical for two or more PCs.
+Result set: hd.
+*/
+-- PGSQL
+WITH hd_table AS
+(
+SELECT hd, COUNT(hd)
+FROM PC
+GROUP BY hd
+HAVING COUNT(hd) >= 2
+)
+SELECT hd
+FROM hd_table;
+-- MYSQL
+SELECT hd
+FROM (
+    SELECT hd, COUNT(hd)
+    FROM PC
+    GROUP BY hd
+    HAVING COUNT(hd) >=2
+) any_name;
