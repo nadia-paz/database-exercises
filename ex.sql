@@ -112,3 +112,15 @@ FROM (
     GROUP BY hd
     HAVING COUNT(hd) >=2
 ) any_name;
+
+/*
+16. Get pairs of PC models with identical speeds and the same RAM capacity. 
+Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).
+Result set: model with the bigger number, model with the smaller number, speed, and RAM.
+*/
+SELECT DISTINCT pca.model, pcb.model, pca.speed, pcb.ram
+FROM PC, PC AS pca, PC AS pcb
+WHERE pca.speed = pcb.speed 
+    AND pca.ram = pcb.ram 
+    AND pca.model > pcb.model;
+
