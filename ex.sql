@@ -37,4 +37,19 @@ WHERE price IN (SELECT MAX(price) FROM Printer);
 11. Find out the average speed of PCs.
 */
 SELECT AVG(speed)
+FROM PC;
+
+/*
+12. Find out the average speed of the laptops priced over $1000.
+*/
+SELECT AVG(speed)
+FROM Laptop
+WHERE price > 1000;
+
+/*
+13. Find out the average speed of the PCs produced by maker A.
+*/
+SELECT AVG(speed)
 FROM PC
+JOIN Product p USING(model)
+WHERE p.maker = 'A';
