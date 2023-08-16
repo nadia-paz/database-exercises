@@ -124,3 +124,14 @@ WHERE pca.speed = pcb.speed
     AND pca.ram = pcb.ram 
     AND pca.model > pcb.model;
 
+/*
+17. Get the laptop models that have a speed smaller than the speed of any PC.
+Result set: type, model, speed.
+*/
+
+SELECT DISTINCT pr.type, l.model, l.speed
+FROM Laptop l 
+JOIN product pr USING(model)
+WHERE l.speed < ALL(SELECT speed FROM PC); 
+
+
