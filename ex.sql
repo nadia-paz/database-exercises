@@ -156,5 +156,8 @@ Result set: maker, price.
 SELECT DISTINCT prod.maker, prin.price
 FROM Printer prin
 JOIN Product prod  USING(model)
-WHERE prin.price = (SELECT MIN(price) FROM Printer WHERE color = 'y');
+WHERE prin.price = (SELECT MIN(price) FROM Printer WHERE color = 'y') AND prin.color='y';
+
+/*
+19.
 
