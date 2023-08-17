@@ -159,5 +159,11 @@ JOIN Product prod  USING(model)
 WHERE prin.price = (SELECT MIN(price) FROM Printer WHERE color = 'y') AND prin.color='y';
 
 /*
-19.
-
+19. For each maker having models in the Laptop table, 
+find out the average screen size of the laptops he produces.
+Result set: maker, average screen size.
+*/
+SELECT p.maker, AVG(l.screen)
+FROM Product p 
+JOIN Laptop l USING(model)
+GROUP BY maker;
