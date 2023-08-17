@@ -133,6 +133,12 @@ WHERE pca.speed = pcb.speed
     AND pca.ram = pcb.ram 
     AND pca.model > pcb.model;
 
+/* site solution */
+SELECT MAX(model) AS 'model', MIN(model) AS 'model', speed, ram
+FROM PC
+GROUP BY speed, ram
+HAVING MAX(model) > MIN(model);
+
 /*
 17. Get the laptop models that have a speed smaller than the speed of any PC.
 Result set: type, model, speed.
@@ -143,4 +149,12 @@ FROM Laptop l
 JOIN product pr USING(model)
 WHERE l.speed < ALL(SELECT speed FROM PC); 
 
+/*
+18. Find the makers of the cheapest color printers.
+Result set: maker, price.
+*/
+SELECT DISTINCT prod.maker, prin.price
+FROM Printer prin
+JOIN Product prod  USING(model)
+WHERE prin.price = (SELECT MIN(price) FROM Printer WHERE color = 'y');
 
