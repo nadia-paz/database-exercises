@@ -113,6 +113,15 @@ FROM (
     HAVING COUNT(hd) >=2
 ) any_name;
 
+/* solution with WHERE EXISTS */
+SELECT DISTINCT pc1.hd
+FROM PC pc1
+WHERE EXISTS (
+    SELECT *
+    FROM PC pc2
+    WHERE pc1.hd = pc2.hs AND pc1.model <> pc2.model
+);
+
 /*
 16. Get pairs of PC models with identical speeds and the same RAM capacity. 
 Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).
