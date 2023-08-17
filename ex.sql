@@ -228,4 +228,24 @@ SELECT model
 FROM un_table
 WHERE price = (SELECT MAX(price) FROM un_table);
 
+/*
+25. Найдите производителей принтеров, которые производят ПК с наименьшим объемом RAM 
+и с самым быстрым процессором среди всех ПК, имеющих наименьший объем RAM. 
+Вывести: Maker
+*/
+WITH min_ram AS (
+    SELECT model, speed, ram
+    FROM PC
+    WHERE ram = (SELECT MIN(ram) FROM PC)
+)
+SELECT DISTINCT maker
+FROM Product p 
+JOIN min_ram mr USING(model)
+WHERE p.maker IN (
+    SELECT maker
+    FROM Product
+    WHERE type = 'Printer'
+) AND mr.speed = (
+    SELECT MAX(speed) FROM min_ram
+); /* didn't pass an additional test -- upd. workd with DISTINCT */
 
