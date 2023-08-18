@@ -249,3 +249,31 @@ WHERE p.maker IN (
     SELECT MAX(speed) FROM min_ram
 ); /* didn't pass an additional test -- upd. workd with DISTINCT */
 
+/*
+26. Find out the average price of PCs and laptops produced by maker A.
+Result set: one overall average price for all items.
+*/
+WITH u_table AS (
+    SELECT model, price
+    FROM PC
+    UNION ALL
+    SELECT model, price
+    FROM Laptop
+)
+SELECT AVG(price)
+FROM u_table
+JOIN Product p USING(model)
+WHERE p.maker = 'A';
+
+/* 2nd solution */
+SELECT AVG(price)
+FROM (
+    SELECT model, maker, price
+    FROM Product 
+    JOIN PC USING(model)
+    UNION ALL
+    SELECT model, maker, price
+    FROM Product 
+    JOIN Laptop USING(model)
+) a
+WHERE maker='A';
