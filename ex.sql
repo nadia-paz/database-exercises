@@ -277,3 +277,17 @@ FROM (
     JOIN Laptop USING(model)
 ) a
 WHERE maker='A';
+
+/*
+27. Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.
+Result set: maker, average HDD capacity.
+*/
+SELECT p.maker, AVG(PC.hd)
+FROM Product p 
+JOIN PC USING(model)
+WHERE p.maker IN (
+    SELECT maker
+    FROM Product
+    WHERE type = 'Printer'
+)
+GROUP BY p.maker;
