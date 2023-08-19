@@ -282,6 +282,8 @@ WHERE maker='A';
 27. Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.
 Result set: maker, average HDD capacity.
 */
+/* with IN you have to use a subquery!!! not WITH table AS!!!*/
+
 SELECT p.maker, AVG(PC.hd)
 FROM Product p 
 JOIN PC USING(model)
@@ -291,3 +293,15 @@ WHERE p.maker IN (
     WHERE type = 'Printer'
 )
 GROUP BY p.maker;
+
+/*
+28. Using Product table, find out the number of makers who produce only one model.
+*/
+WITH count_table AS(
+    SELECT maker, COUNT(model) AS mdl
+    FROM Product
+    GROUP BY maker
+)
+SELECT COUNT(*)
+FROM count_table
+WHERE mdl = 1;
