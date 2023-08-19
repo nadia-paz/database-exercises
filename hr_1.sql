@@ -1,0 +1,40 @@
+/*
+BST - binary search tree
+N - number
+P - parent
+print out a number and "Leaf/Inner/Root"
+*/
+SELECT N, CASE
+WHEN P IS IN (SELECT DISTINCT P FROM BST WHERE P IS NULL) THEN "Root"
+WHEN N IS NOT IN (SELECT DISTINCT P FROM BST) THEN "Leaf"
+ELSE "Inner" END 
+FROM BST
+ORDER BY N;
+/*or*/
+SELECT N, CASE
+WHEN P IS NULL THEN "Root"
+WHEN N IS IN (SELECT DISTINCT P FROM BST) THEN "Inner"
+ELSE "Leaf" END 
+FROM BST
+ORDER BY N;
+
+/* Weather Observation Station 4 */
+SELECT COUNT(*) - COUNT(DISTINCT CITY)
+FROM STATION;
+
+/* Weather Observation Station 5 */
+WITH city_min AS (
+    SELECT CITY
+    FROM STATION
+    WHERE LENGTH(CITY) = (SELECT MIN(LENGTH(CITY)) FROM STATION)
+    ORDER BY CITY 
+    LIMIT 1
+),
+city_max AS (
+    SELECT CITY
+    FROM STATION
+    WHERE LENGTH(CITY) = (SELECT MAX(LENGTH(CITY)) FROM STATION)
+)
+SELECT CITY, LENGTH(CITY) FROM city_min
+UNION
+SELECT CITY, LENGTH(CITY) FROM city_max;
