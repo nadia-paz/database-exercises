@@ -326,3 +326,17 @@ WITH count_table AS(
 SELECT COUNT(*)
 FROM count_table
 WHERE mdl = 1;
+
+/*
+29. В предположении, что приход и расход денег на каждом пункте приема фиксируется 
+не чаще одного раза в день [т.е. первичный ключ (пункт, дата)], написать запрос 
+с выходными данными (пункт, дата, приход, расход). Использовать таблицы Income_o и Outcome_o.
+*/
+
+SELECT io.point, io.date, io.inc, oo.out
+FROM Income_o io 
+LEFT JOIN Outcome_o oo ON io.point=oo.point AND io.date = oo.date
+UNION
+SELECT oo.point, oo.date, io.inc, oo.out
+FROM Outcome_o oo 
+LEFT JOIN Income_o io ON io.point=oo.point AND io.date = oo.date;
