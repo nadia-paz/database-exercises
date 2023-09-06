@@ -340,3 +340,25 @@ UNION
 SELECT oo.point, oo.date, io.inc, oo.out
 FROM Outcome_o oo 
 LEFT JOIN Income_o io ON io.point=oo.point AND io.date = oo.date;
+
+/*
+В предположении, что приход и расход денег на каждом пункте приема фиксируется произвольное число раз 
+(первичным ключом в таблицах является столбец code), требуется получить таблицу, 
+в которой каждому пункту за каждую дату выполнения операций будет соответствовать одна строка.
+Вывод: point, date, суммарный расход пункта за день (out), суммарный приход пункта за день (inc). 
+Отсутствующие значения считать неопределенными (NULL).
+*/
+
+-- Works in PostgreSQL, doesn't work in MySQL
+WITH temp AS (
+SELECT point, date, SUM(out) AS outcome, null as income
+FROM Outcome 
+GROUP BY point, date
+UNION
+SELECT point, date, NULL AS outcome, SUM(inc) as income
+FROM Income
+GROUP BY point, date
+)
+SELECT point, date, SUM(outcome) AS outcome, SUM(income) AS income
+FROM temp
+GROUP BY point, date
