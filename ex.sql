@@ -362,3 +362,22 @@ GROUP BY point, date
 SELECT point, date, SUM(outcome) AS outcome, SUM(income) AS income
 FROM temp
 GROUP BY point, date
+
+-- 2nd solution (still didn't work in MySQL - Why?)
+WITH temp_out AS (
+    SELECT point, date, SUM(out) AS outcome
+    FROM Outcome
+    GROUP BY point, date
+),
+temp_in AS (
+    SELECT point, date, SUM(inc) AS income
+    FROM Income
+    GROUP BY point, date
+)
+SELECT temp_out.point, temp_out.date, outcome, income
+FROM temp_out
+LEFT JOIN temp_in ON temp_out.point = temp_in.point AND temp_out.date = temp_in.date
+UNION 
+SELECT temp_in.point, temp_in.date, outcome, income
+FROM temp_in
+LEFT JOIN temp_out ON temp_out.point = temp_in.point AND temp_out.date = temp_in.date
