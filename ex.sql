@@ -432,3 +432,24 @@ WITH temp_ships AS (
 SELECT country, CAST(AVG(POW(bore, 3) / 2) AS DECIMAL(10, 2)) AS weight
 FROM temp_ships
 GROUP BY country;
+
+/*
+33. Укажите корабли, потопленные в сражениях в Северной Атлантике (North Atlantic). Вывод: ship.
+*/
+SELECT ship 
+FROM Outcomes
+WHERE battle = 'North Atlantic' AND result = 'sunk';
+
+/*
+34. По Вашингтонскому международному договору от начала 1922 г. 
+запрещалось строить линейные корабли водоизмещением более 35 тыс.тонн. 
+Укажите корабли, нарушившие этот договор (учитывать только корабли c известным годом спуска на воду). 
+Вывести названия кораблей.
+*/
+SELECT name
+FROM Classes c
+FULL JOIN Ships s USING(class) 
+WHERE s.launched IS NOT NULL 
+AND type = 'bb'
+AND launched >= 1922
+AND displacement > 35000;
