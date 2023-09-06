@@ -342,7 +342,7 @@ FROM Outcome_o oo
 LEFT JOIN Income_o io ON io.point=oo.point AND io.date = oo.date;
 
 /*
-В предположении, что приход и расход денег на каждом пункте приема фиксируется произвольное число раз 
+30. В предположении, что приход и расход денег на каждом пункте приема фиксируется произвольное число раз 
 (первичным ключом в таблицах является столбец code), требуется получить таблицу, 
 в которой каждому пункту за каждую дату выполнения операций будет соответствовать одна строка.
 Вывод: point, date, суммарный расход пункта за день (out), суммарный приход пункта за день (inc). 
@@ -361,7 +361,7 @@ GROUP BY point, date
 )
 SELECT point, date, SUM(outcome) AS outcome, SUM(income) AS income
 FROM temp
-GROUP BY point, date
+GROUP BY point, date;
 
 -- 2nd solution (still didn't work in MySQL - Why?)
 WITH temp_out AS (
@@ -380,4 +380,55 @@ LEFT JOIN temp_in ON temp_out.point = temp_in.point AND temp_out.date = temp_in.
 UNION 
 SELECT temp_in.point, temp_in.date, outcome, income
 FROM temp_in
-LEFT JOIN temp_out ON temp_out.point = temp_in.point AND temp_out.date = temp_in.date
+LEFT JOIN temp_out ON temp_out.point = temp_in.point AND temp_out.date = temp_in.date;
+
+/* 
+31. Для классов кораблей, калибр орудий которых не менее 16 дюймов, укажите класс и страну.
+*/
+SELECT class, country
+FROM Classes
+WHERE bore >= 16;
+
+/*
+32. Одной из характеристик корабля является половина куба калибра его главных орудий (mw). 
+С точностью до 2 десятичных знаков определите среднее значение mw для кораблей каждой страны, 
+у которой есть корабли в базе данных.
+*/
+
+-- didn't pass the additional check
+SELECT country, CAST(AVG(POW(bore, 3) / 2) AS DECIMAL(10, 2))
+FROM Classes c
+FULL JOIN Ships sh USING(class)
+GROUP BY country;
+
+-- stack overflow solution
+select country, cast(avg(power(bore, 3)/2) as decimal(10,2)) weight 
+from
+    (select country, bore, name 
+     -- same as inner join
+     from classes c, ships s
+     where s.class=c.class
+     union
+     select country, bore, ship from classes c, outcomes o
+     where o.ship=c.class 
+     -- there is no need to include next line of code 
+     -- as UNION removes duplicates
+     and o.ship not in(select distinct name from ships))x
+group by country;
+
+-- rewrite stack overflow
+WITH temp_ships AS (
+    SELECT country, bore, name
+    FROM Classes c, Ships s 
+    WHERE c.class = s.class
+
+    UNION
+
+    SELECT country, bore, ship
+    FROM Classes c, Outcomes o
+    WHERE c.class = o.ship
+)
+
+SELECT country, CAST(AVG(POW(bore, 3) / 2) AS DECIMAL(10, 2)) AS weight
+FROM temp_ships
+GROUP BY country;
