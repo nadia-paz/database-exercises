@@ -1,17 +1,3 @@
-/*
-BST - binary search tree
-N - number
-P - parent
-print out a number and "Leaf/Inner/Root"
-*/
-SELECT DISTINCT N, 
-    CASE
-        WHEN N IN (SELECT N FROM BST WHERE P IS NULL) THEN 'Root'
-        WHEN N IN (SELECT DISTINCT P FROM BST) THEN 'Inner'
-        ELSE 'Leaf' END node
-FROM BST
-ORDER BY N;
-
 /* Weather Observation Station 4 */
 SELECT COUNT(*) - COUNT(DISTINCT CITY)
 FROM STATION;
@@ -93,3 +79,4 @@ SELECT Name
 FROM STUDENTS
 WHERE Marks > 75
 ORDER BY RIGHT(NAME, 3), ID;
+
